@@ -1,7 +1,7 @@
 CXX := g++
 PYTHON_BIN_PATH = python
 
-SRCS = $(wildcard *.cc)
+SRCS = rasterize_triangles_grad.cc rasterize_triangles_impl.cc rasterize_triangles_op.cc
 
 TF_CFLAGS := $(shell $(PYTHON_BIN_PATH) -c 'import tensorflow as tf; print(" ".join(tf.sysconfig.get_compile_flags()))')
 TF_LFLAGS := $(shell $(PYTHON_BIN_PATH) -c 'import tensorflow as tf; print(" ".join(tf.sysconfig.get_link_flags()))')
