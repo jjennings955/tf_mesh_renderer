@@ -54,4 +54,4 @@ with tf.Session() as sess:
         target_image_name = 'Gray_Cube_%i.png' % image_id
         baseline_image_path = os.path.join('out',
                                            target_image_name)
-        skimage.io.imsave(images[image_id])
+        skimage.io.imsave(baseline_image_path, images[image_id])
