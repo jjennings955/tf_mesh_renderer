@@ -9,7 +9,7 @@ TF_LFLAGS := $(shell $(PYTHON_BIN_PATH) -c 'import tensorflow as tf; print(" ".j
 CFLAGS = ${TF_CFLAGS} -fPIC -O2 -std=c++11
 LDFLAGS = -shared ${TF_LFLAGS}
 
-TARGET_LIB = ../rasterize_triangles_kernel.so
+TARGET_LIB = rasterize_triangles_kernel.so
 
 .PHONY: op
 op: $(TARGET_LIB)
