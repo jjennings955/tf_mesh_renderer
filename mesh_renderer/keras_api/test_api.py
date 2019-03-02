@@ -1,3 +1,4 @@
+import numpy as np
 from keras.models import Input, Model
 from keras import backend as K
 import tensorflow as tf
@@ -18,7 +19,7 @@ camera = Camera(eye=[], center=[], world_up=[])
 warp_params = Input(shape=[NUM_WARPS, 1])
 warp_module = Warp(num_warps=NUM_WARPS)
 
-warped_model_batch = Warp(([base_model.vertices, warp_params]))
+warped_model_batch = Warp([base_model.vertices, warp_params])
 model = Model(inputs=[warp_params], outputs=[warped_model_batch])
 
 
