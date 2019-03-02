@@ -28,12 +28,11 @@ class Geometry(object):
         adj_list /= np.sum(adj_list, axis=1, keepdims=True)
         self.adj_list = tf.constant(adj_list[np.newaxis, :, :])
 
-def calculate_normals(vertices_batch, faces, adj_list):
-    tv = tf.gather(vertices_batch, faces, axis=1)
-    v_1 = tv[:, :, 1] - tv[:, :, 0]
-    v_2 = tv[:, :, 2] - tv[:, :, 0]
-    face_normals = tf.cross(v_1, v_2)
-    vertex_normals = broadcast_matmul(adj_list, face_normals)
-    normals = tf.nn.l2_normalize(vertex_normals, dim=1)
-    return normals
-
+    def calculate_normals_on_batch(self, vertices_batch):
+        tv = tf.gather(vertices_batch, self.faces, axis=1)
+        v_1 = tv[:, :, 1] - tv[:, :, 0]
+        v_2 = tv[:, :, 2] - tv[:, :, 0]
+        face_normals = tf.cross(v_1, v_2)
+        vertex_normals = broadcast_matmul(self.adj_list, face_normals)
+        normals = tf.nn.l2_normalize(vertex_normals, dim=1)
+        return normals
