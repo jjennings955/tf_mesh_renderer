@@ -16,7 +16,7 @@ num_lights = 1
 
 
 base_model = Geometry(vertices=np.random.randn(num_vertices, 3), faces=np.random.randint(0, num_vertices, size=[num_faces, 3]))
-lights = Lights(positions=np.random.randn(num_lights, 3), intensities=[num_lights, 3])
+lights = Lights(positions=np.random.randn(num_lights, 3), intensities=np.random.randn(num_lights, 3))
 camera = Camera(eye=np.random.randn(1, 3), center=np.random.randn(1, 3), world_up=np.random.randn(1, 3))
 
 warp_params = Input(shape=[NUM_WARPS, 1])
