@@ -28,5 +28,5 @@ model = Model(inputs=[warp_params], outputs=[warped_model_batch])
 
 sess = K.get_session()
 sess.run(tf.global_variables_initializer())
-sess.run([warped_model_batch], feed_dict={warp_params : np.random.randn(BATCH_SIZE, NUM_WARPS, 1)})
+sess.run([model(warp_params)], feed_dict={warp_params : np.random.randn(BATCH_SIZE, NUM_WARPS, 1)})
 
