@@ -10,11 +10,14 @@ from warp import Warp
 
 BATCH_SIZE = 10
 NUM_WARPS = 5
+num_vertices = 100
+num_faces = 150
+num_lights = 1
 
 
-base_model = Geometry(vertices=[], faces=[])
-lights = Lights(positions=[], intensities=[])
-camera = Camera(eye=[], center=[], world_up=[])
+base_model = Geometry(vertices=np.random.randn(num_vertices, 3), faces=np.random.randint(0, num_vertices, size=[num_faces, 3]))
+lights = Lights(positions=np.random.randn(num_lights, 3), intensities=[num_lights, 3])
+camera = Camera(eye=np.random.randn(1, 3), center=np.random.randn(1, 3), world_up=np.random.randn(1, 3))
 
 warp_params = Input(shape=[NUM_WARPS, 1])
 warp_module = Warp(num_warps=NUM_WARPS)
