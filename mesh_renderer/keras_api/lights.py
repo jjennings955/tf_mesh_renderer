@@ -5,12 +5,6 @@ import numpy as np
 
 class Lights(object):
   def __init__(self, positions, intensities, _type='fixed', **kwargs):
-    assert isinstance(positions, (np.ndarray, tf.Tensor, tf.Variable))
-    assert isinstance(intensities, (np.ndarray, tf.Tensor, tf.Variable))
-    assert positions.ndim == 2 and positions.shape[-1] == 3
-    assert intensities.ndim == 2 and positions.shape[-1] == 3
-    assert positions.shape[1] == intensities.shape[1]
-
     assert _type in ['fixed', 'variable']
     if isinstance(positions, np.ndarray):
         if _type == 'fixed':
