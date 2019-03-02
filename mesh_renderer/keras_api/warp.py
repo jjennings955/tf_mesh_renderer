@@ -32,7 +32,7 @@ class Warp(keras.layers.Layer):
     def call(self, x):
         vertices, warp_params = x[0], x[1]
         print([x[1].shape[0], 1, 1])
-        vertices_repeated = tf.tile(vertices[tf.newaxis, :, :], [x[1].shape[0], 1, 1])
+        vertices_repeated = tf.tile(vertices[tf.newaxis, :, :], [tf.shape(x[1])[0], 1, 1])
         warped_vertices = tf.foldl(warp_rbf,
                                    elems=[self.keypoints, self.warp_vectors,
                                           K.permute_dimensions(warp_params, (1, 0, 2))],
@@ -45,10 +45,12 @@ class Warp(keras.layers.Layer):
         return [input_shape[1][0]] + input_shape[0]
 
 if __name__ == "__main__":
+    from warp import Warp
     from keras.models import Input, Model
     import numpy as np
     tf.reset_default_graph()
     K.clear_session()
+
     with K.get_session() as sess:
         inputs = Input(batch_shape=[300, 3])
         input2 = Input(batch_shape=[10, 30, 1])
