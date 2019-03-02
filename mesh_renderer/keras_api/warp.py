@@ -41,5 +41,5 @@ class Warp(keras.layers.Layer):
         return warped_vertices
 
     def get_output_shape_for(self, input_shape):
-        return input_shape
+        return [input_shape[1][0]] + input_shape[0]
 
