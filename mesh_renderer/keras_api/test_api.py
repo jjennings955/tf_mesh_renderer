@@ -22,7 +22,7 @@ camera = Camera(eye=np.random.randn(1, 3), center=np.random.randn(1, 3), world_u
 warp_params = Input(shape=[NUM_WARPS, 1])
 warp_module = Warp(num_warps=NUM_WARPS)
 
-warped_model_batch = Warp([base_model.vertices, warp_params])
+warped_model_batch = warp_module([base_model.vertices, warp_params])
 model = Model(inputs=[warp_params], outputs=[warped_model_batch])
 
 
