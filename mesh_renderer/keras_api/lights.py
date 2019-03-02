@@ -16,7 +16,7 @@ class Lights(object):
         if _type == 'fixed':
             self.positions = K.constant(positions, name='light_positions')
         elif _type == 'variable':
-            self.positions = K.Variable(positions, name='light_positions')
+            self.positions = K.variable(positions, name='light_positions')
         else:
             raise ValueError("type must be fixed or variable")
     elif isinstance(positions, tf.Tensor):
@@ -28,7 +28,7 @@ class Lights(object):
         if _type == 'fixed':
             self.intensities = K.constant(positions, name='light_intensities')
         elif _type == 'variable':
-            self.intensities = K.Variable(positions, name='light_intensities')
+            self.intensities = K.variable(positions, name='light_intensities')
         else:
             raise ValueError("type must be fixed or variable")
     elif isinstance(intensities, tf.Tensor):

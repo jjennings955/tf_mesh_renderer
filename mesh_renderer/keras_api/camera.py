@@ -38,9 +38,9 @@ class Camera(object):
             self.center = K.constant(center, name='camera_center')
             self.world_up = K.constant(world_up, name='camera_up')
         elif _type == 'variable':
-            self.eye = K.Variable(eye, name='camera_eye')
-            self.center = K.Variable(center, name='camera_center')
-            self.world_up = K.Variable(world_up, name='camera_up')
+            self.eye = K.variable(eye, name='camera_eye')
+            self.center = K.variable(center, name='camera_center')
+            self.world_up = K.variable(world_up, name='camera_up')
         else:
             raise ValueError("Camera type must be 'fixed' or 'variable'")
 
