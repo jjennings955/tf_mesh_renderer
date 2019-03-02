@@ -14,7 +14,7 @@ class Geometry(object):
 
         self.vertices = K.variable(vertices, name='vertices')
         self.faces = K.constant(faces, name='faces', dtype=tf.int32)
-        self.adj_list = self.calculate_adj_list(vertices, faces)
+        self.calculate_adj_list(vertices, faces)
 
     def calculate_adj_list(self, vertices, faces):
         num_vertices = vertices.shape[0]
