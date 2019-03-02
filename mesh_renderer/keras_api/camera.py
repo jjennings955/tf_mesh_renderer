@@ -28,10 +28,10 @@ import tensorflow as tf
 
 class Camera(object):
     def __init__(self, eye, center, world_up, _type='fixed'):
-        assert eye.shape == (1, 3)
-        assert center.shape == (1, 3)
-        assert world_up.shape == (1, 3)
-        assert _type in ['fixed', 'variable']
+        # assert eye.shape == (1, 3)
+        # assert center.shape == (1, 3)
+        # assert world_up.shape == (1, 3)
+        # assert _type in ['fixed', 'variable']
         self._type = _type
         if _type == 'fixed':
             self.eye = K.constant(eye, name='camera_eye')
