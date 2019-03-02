@@ -1,7 +1,4 @@
-import keras
-from keras import backend as K
 import tensorflow as tf
-import numpy as np
 
 class Transform(keras.layers.Layer):
     def __init__(self, matrix, **kwargs):
@@ -9,7 +6,7 @@ class Transform(keras.layers.Layer):
         super(Transform, self).__init__(**kwargs)
 
     def build(self, input_shape):
-      super(Transform, self).build(input_shape)
+        super(Transform, self).build(input_shape)
 
     def call(self, x):
         return tf.matmul(x, self.matrix, transpose_b=True)
