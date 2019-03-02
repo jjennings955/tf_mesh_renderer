@@ -3,7 +3,7 @@ import keras
 from keras import backend as K
 import tensorflow as tf
 import numpy as np
-
+# x
 def broadcast_matmul(A, B):
     "Compute A @ B, broadcasting over the first `N-2` ranks"
     with tf.variable_scope("broadcast_matmul"):
