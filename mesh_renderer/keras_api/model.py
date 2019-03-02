@@ -9,12 +9,11 @@ def broadcast_matmul(A, B):
     with tf.variable_scope("broadcast_matmul"):
         return tf.reduce_sum(A[..., tf.newaxis] * B[..., tf.newaxis, :, :],
                              axis=-2)
-class BaseModel(keras.layers.Layer):
+class Geometry(keras.layers.Layer):
     def __init__(self, vertices, faces, colors, **kwargs):
 
-        self.vertices = K.variable(vertices, name='vertices_model')
+        self.vertices = K.variable(vertices, name='vertices')
         self.faces = K.constant(faces, name='faces', dtype=tf.int32)
-        self.colors = K.variable(colors, name='vertex_colors')
         self.adj_list = self.calculate_adj_list(vertices, faces)
 
     def calculate_adj_list(self, vertices, faces):
