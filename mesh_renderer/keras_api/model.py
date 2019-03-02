@@ -10,7 +10,7 @@ def broadcast_matmul(A, B):
         return tf.reduce_sum(A[..., tf.newaxis] * B[..., tf.newaxis, :, :],
                              axis=-2)
 class Geometry(keras.layers.Layer):
-    def __init__(self, vertices, faces, colors, **kwargs):
+    def __init__(self, vertices, faces, **kwargs):
 
         self.vertices = K.variable(vertices, name='vertices')
         self.faces = K.constant(faces, name='faces', dtype=tf.int32)
