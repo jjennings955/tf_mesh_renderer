@@ -43,3 +43,16 @@ class Warp(keras.layers.Layer):
     def get_output_shape_for(self, input_shape):
         return [input_shape[1][0]] + input_shape[0]
 
+if __name__ == "__main__":
+    from keras.models import Input, Model
+    import numpy as np
+    tf.reset_default_graph()
+    K.clear_session()
+    with K.get_session() as sess:
+        inputs = Input(batch_shape=[300, 3])
+        input2 = Input(batch_shape=[10, 30, 1])
+        out = Warp(num_warps=30)([inputs, input2])
+        mod = Model(inputs=[inputs, input2], outputs=[out])
+        sess.run(tf.global_variables_initializer())
+        print(sess.run([mod([inputs, input2])],
+                       feed_dict={inputs: np.random.randn(300, 3), input2: np.random.randn(10, 30, 1)}))
