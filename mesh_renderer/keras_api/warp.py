@@ -12,21 +12,22 @@ def warp_rbf(a, x):
 
 
 class Warp(keras.layers.Layer):
-    def __init__(self, num_warps, **kwargs):
-        self.num_warps = num_warps
+    def __init__(self, keypoints, warp_vectors, **kwargs):
+        self.keypoints = keypoints
+        self.warp_vectors = warp_vectors
         super(Warp, self).__init__(**kwargs)
 
     def build(self, input_shape):
         # vertices, warp_points
         # [batch, num_vertices, 3], [batch, self.num_warps, 1]
-        self.keypoints = self.add_weight(name='keypoints',
-                                         shape=(self.num_warps, 3),
-                                         initializer='uniform',
-                                         trainable=True)
-        self.warp_vectors = self.add_weight(name='warp_vector',
-                                            shape=(self.num_warps, 3),
-                                            initializer='uniform',
-                                            trainable=True)
+        # self.keypoints = self.add_weight(name='keypoints',
+        #                                  shape=(self.num_warps, 3),
+        #                                  initializer='uniform',
+        #                                  trainable=True)
+        # self.warp_vectors = self.add_weight(name='warp_vector',
+        #                                     shape=(self.num_warps, 3),
+        #                                     initializer='uniform',
+        #                                     trainable=True)
         super(Warp, self).build(input_shape)
 
     def call(self, x):
@@ -43,19 +44,3 @@ class Warp(keras.layers.Layer):
 
     def get_output_shape_for(self, input_shape):
         return [input_shape[1][0]] + input_shape[0]
-
-if __name__ == "__main__":
-    from warp import Warp
-    from keras.models import Input, Model
-    import numpy as np
-    tf.reset_default_graph()
-    K.clear_session()
-
-    with K.get_session() as sess:
-        inputs = Input(batch_shape=[300, 3])
-        input2 = Input(batch_shape=[10, 30, 1])
-        out = Warp(num_warps=30)([inputs, input2])
-        mod = Model(inputs=[inputs, input2], outputs=[out])
-        sess.run(tf.global_variables_initializer())
-        print(sess.run([mod([inputs, input2])],
-                       feed_dict={inputs: np.random.randn(300, 3), input2: np.random.randn(10, 30, 1)}))
