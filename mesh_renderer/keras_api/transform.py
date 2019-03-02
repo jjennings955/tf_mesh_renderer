@@ -4,12 +4,11 @@ import tensorflow as tf
 import numpy as np
 
 class Transform(keras.layers.Layer):
-    def __init__(self, batch_size, **kwargs):
-        self.batch_size = batch_size
+    def __init__(self, matrix, **kwargs):
+        self.matrix = matrix
         super(Transform, self).__init__(**kwargs)
 
     def build(self, input_shape):
-      self.matrix = K.variable(np.random.randn(self.batch_size, 3, 3))
       super(Transform, self).build(input_shape)
 
     def call(self, x):

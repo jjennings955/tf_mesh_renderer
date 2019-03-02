@@ -27,23 +27,10 @@ import tensorflow as tf
 
 
 class Camera(object):
-    def __init__(self, eye, center, world_up, _type='fixed'):
-        # assert eye.shape == (1, 3)
-        # assert center.shape == (1, 3)
-        # assert world_up.shape == (1, 3)
-        # assert _type in ['fixed', 'variable']
-        self._type = _type
-        if _type == 'fixed':
-            self.eye = K.constant(eye, name='camera_eye')
-            self.center = K.constant(center, name='camera_center')
-            self.world_up = K.constant(world_up, name='camera_up')
-        elif _type == 'variable':
-            self.eye = K.variable(eye, name='camera_eye')
-            self.center = K.variable(center, name='camera_center')
-            self.world_up = K.variable(world_up, name='camera_up')
-        else:
-            raise ValueError("Camera type must be 'fixed' or 'variable'")
-
+    def __init__(self, eye, center, world_up):
+        self.eye = eye
+        self.center = center
+        self.world_up = world_up
 
 
     # def build(self, input_shape):
