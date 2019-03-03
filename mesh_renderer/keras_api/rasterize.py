@@ -3,7 +3,7 @@ from keras import backend as K
 import tensorflow as tf
 import mesh_renderer
 
-class Render(keras.layers.Layer):
+class Rasterize(keras.layers.Layer):
     def __init__(self, res, **kwargs):
         self.resolution = res
         super(Render, self).__init__(**kwargs)
@@ -17,7 +17,7 @@ class Render(keras.layers.Layer):
         colors = x[3]
         eye, center, world_up = x[4], x[5], x[6]
         light_positions, light_intensities = x[7], x[8]
-        return mesh_renderer.mesh_renderer2(vertices,
+        return mesh_renderer.mesh_renderer(vertices,
                                            faces,
                                            normals,
                                            colors,

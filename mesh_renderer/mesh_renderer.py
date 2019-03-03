@@ -400,3 +400,209 @@ def mesh_renderer(vertices,
       shininess_coefficients=shininess_coefficients,
       ambient_color=ambient_color)
   return renders
+
+def mesh_renderer2(vertices,
+                  triangles,
+                  normals,
+                  diffuse_colors,
+                  camera_position,
+                  camera_lookat,
+                  camera_up,
+                  light_positions,
+                  light_intensities,
+                  image_width,
+                  image_height,
+                  specular_colors=None,
+                  shininess_coefficients=None,
+                  ambient_color=None,
+                  fov_y=40.0,
+                  near_clip=0.01,
+                  far_clip=10.0):
+  """Renders an input scene using phong shading, and returns an output image.
+
+  Args:
+    vertices: 3-D float32 tensor with shape [batch_size, vertex_count, 3]. Each
+        triplet is an xyz position in world space.
+    triangles: 2-D int32 tensor with shape [triangle_count, 3]. Each triplet
+        should contain vertex indices describing a triangle such that the
+        triangle's normal points toward the viewer if the forward order of the
+        triplet defines a clockwise winding of the vertices. Gradients with
+        respect to this tensor are not available.
+    normals: 3-D float32 tensor with shape [batch_size, vertex_count, 3]. Each
+        triplet is the xyz vertex normal for its corresponding vertex. Each
+        vector is assumed to be already normalized.
+    diffuse_colors: 3-D float32 tensor with shape [batch_size,
+        vertex_count, 3]. The RGB diffuse reflection in the range [0,1] for
+        each vertex.
+    camera_position: 2-D tensor with shape [batch_size, 3] or 1-D tensor with
+        shape [3] specifying the XYZ world space camera position.
+    camera_lookat: 2-D tensor with shape [batch_size, 3] or 1-D tensor with
+        shape [3] containing an XYZ point along the center of the camera's gaze.
+    camera_up: 2-D tensor with shape [batch_size, 3] or 1-D tensor with shape
+        [3] containing the up direction for the camera. The camera will have no
+        tilt with respect to this direction.
+    light_positions: a 3-D tensor with shape [batch_size, light_count, 3]. The
+        XYZ position of each light in the scene. In the same coordinate space as
+        pixel_positions.
+    light_intensities: a 3-D tensor with shape [batch_size, light_count, 3]. The
+        RGB intensity values for each light. Intensities may be above one.
+    image_width: int specifying desired output image width in pixels.
+    image_height: int specifying desired output image height in pixels.
+    specular_colors: 3-D float32 tensor with shape [batch_size,
+        vertex_count, 3]. The RGB specular reflection in the range [0, 1] for
+        each vertex.  If supplied, specular reflections will be computed, and
+        both specular_colors and shininess_coefficients are expected.
+    shininess_coefficients: a 0D-2D float32 tensor with maximum shape
+       [batch_size, vertex_count]. The phong shininess coefficient of each
+       vertex. A 0D tensor or float gives a constant shininess coefficient
+       across all batches and images. A 1D tensor must have shape [batch_size],
+       and a single shininess coefficient per image is used.
+    ambient_color: a 2D tensor with shape [batch_size, 3]. The RGB ambient
+        color, which is added to each pixel in the scene. If None, it is
+        assumed to be black.
+    fov_y: float, 0D tensor, or 1D tensor with shape [batch_size] specifying
+        desired output image y field of view in degrees.
+    near_clip: float, 0D tensor, or 1D tensor with shape [batch_size] specifying
+        near clipping plane distance.
+    far_clip: float, 0D tensor, or 1D tensor with shape [batch_size] specifying
+        far clipping plane distance.
+
+  Returns:
+    A 4-D float32 tensor of shape [batch_size, image_height, image_width, 4]
+    containing the lit RGBA color values for each image at each pixel. RGB
+    colors are the intensity values before tonemapping and can be in the range
+    [0, infinity]. Clipping to the range [0,1] with tf.clip_by_value is likely
+    reasonable for both viewing and training most scenes. More complex scenes
+    with multiple lights should tone map color values for display only. One
+    simple tonemapping approach is to rescale color values as x/(1+x); gamma
+    compression is another common techinque. Alpha values are zero for
+    background pixels and near one for mesh pixels.
+  Raises:
+    ValueError: An invalid argument to the method is detected.
+  """
+  if len(vertices.shape) != 3:
+    raise ValueError('Vertices must have shape [batch_size, vertex_count, 3].')
+  batch_size = vertices.shape[0].value
+  if len(normals.shape) != 3:
+    raise ValueError('Normals must have shape [batch_size, vertex_count, 3].')
+  if len(light_positions.shape) != 3:
+    raise ValueError(
+        'Light_positions must have shape [batch_size, light_count, 3].')
+  if len(light_intensities.shape) != 3:
+    raise ValueError(
+        'Light_intensities must have shape [batch_size, light_count, 3].')
+  if len(diffuse_colors.shape) != 3:
+    raise ValueError(
+        'vertex_diffuse_colors must have shape [batch_size, vertex_count, 3].')
+  if (ambient_color is not None and
+      ambient_color.get_shape().as_list() != [batch_size, 3]):
+    raise ValueError('Ambient_color must have shape [batch_size, 3].')
+  if camera_position.get_shape().as_list() == [3]:
+    camera_position = tf.tile(
+        tf.expand_dims(camera_position, axis=0), [batch_size, 1])
+  elif camera_position.get_shape().as_list() != [batch_size, 3]:
+    raise ValueError('Camera_position must have shape [batch_size, 3]')
+  if camera_lookat.get_shape().as_list() == [3]:
+    camera_lookat = tf.tile(
+        tf.expand_dims(camera_lookat, axis=0), [batch_size, 1])
+  elif camera_lookat.get_shape().as_list() != [batch_size, 3]:
+    raise ValueError('Camera_lookat must have shape [batch_size, 3]')
+  if camera_up.get_shape().as_list() == [3]:
+    camera_up = tf.tile(tf.expand_dims(camera_up, axis=0), [batch_size, 1])
+  elif camera_up.get_shape().as_list() != [batch_size, 3]:
+    raise ValueError('Camera_up must have shape [batch_size, 3]')
+  if isinstance(fov_y, float):
+    fov_y = tf.constant(batch_size * [fov_y], dtype=tf.float32)
+  elif not fov_y.get_shape().as_list():
+    fov_y = tf.tile(tf.expand_dims(fov_y, 0), [batch_size])
+  elif fov_y.get_shape().as_list() != [batch_size]:
+    raise ValueError('Fov_y must be a float, a 0D tensor, or a 1D tensor with'
+                     'shape [batch_size]')
+  if isinstance(near_clip, float):
+    near_clip = tf.constant(batch_size * [near_clip], dtype=tf.float32)
+  elif not near_clip.get_shape().as_list():
+    near_clip = tf.tile(tf.expand_dims(near_clip, 0), [batch_size])
+  elif near_clip.get_shape().as_list() != [batch_size]:
+    raise ValueError('Near_clip must be a float, a 0D tensor, or a 1D tensor'
+                     'with shape [batch_size]')
+  if isinstance(far_clip, float):
+    far_clip = tf.constant(batch_size * [far_clip], dtype=tf.float32)
+  elif not far_clip.get_shape().as_list():
+    far_clip = tf.tile(tf.expand_dims(far_clip, 0), [batch_size])
+  elif far_clip.get_shape().as_list() != [batch_size]:
+    raise ValueError('Far_clip must be a float, a 0D tensor, or a 1D tensor'
+                     'with shape [batch_size]')
+  if specular_colors is not None and shininess_coefficients is None:
+    raise ValueError(
+        'Specular colors were supplied without shininess coefficients.')
+  if shininess_coefficients is not None and specular_colors is None:
+    raise ValueError(
+        'Shininess coefficients were supplied without specular colors.')
+  if specular_colors is not None:
+    # Since a 0-D float32 tensor is accepted, also accept a float.
+    if isinstance(shininess_coefficients, float):
+      shininess_coefficients = tf.constant(
+          shininess_coefficients, dtype=tf.float32)
+    if len(specular_colors.shape) != 3:
+      raise ValueError('The specular colors must have shape [batch_size, '
+                       'vertex_count, 3].')
+    if len(shininess_coefficients.shape) > 2:
+      raise ValueError('The shininess coefficients must have shape at most'
+                       '[batch_size, vertex_count].')
+    # If we don't have per-vertex coefficients, we can just reshape the
+    # input shininess to broadcast later, rather than interpolating an
+    # additional vertex attribute:
+    if len(shininess_coefficients.shape) < 2:
+      vertex_attributes = tf.concat(
+          [normals, vertices, diffuse_colors, specular_colors], axis=2)
+    else:
+      vertex_attributes = tf.concat(
+          [
+              normals, vertices, diffuse_colors, specular_colors,
+              tf.expand_dims(shininess_coefficients, axis=2)
+          ],
+          axis=2)
+  else:
+    vertex_attributes = tf.concat([normals, vertices, diffuse_colors], axis=2)
+
+  camera_matrices = camera_utils.look_at(camera_position, camera_lookat,
+                                         camera_up)
+
+  perspective_transforms = camera_utils.perspective(image_width / image_height,
+                                                    fov_y, near_clip, far_clip)
+
+  clip_space_transforms = tf.matmul(perspective_transforms, camera_matrices)
+
+  pixel_attributes, vertex_ids, barycentric_coordinates = rasterize_triangles.rasterize2(
+      vertices, vertex_attributes, triangles, clip_space_transforms,
+      image_width, image_height, [-1] * vertex_attributes.shape[2].value)
+  print(vertex_ids)
+  print(barycentric_coordinates)
+  # Extract the interpolated vertex attributes from the pixel buffer and
+  # supply them to the shader:
+  pixel_normals = tf.nn.l2_normalize(pixel_attributes[:, :, :, 0:3], dim=3)
+  pixel_positions = pixel_attributes[:, :, :, 3:6]
+  diffuse_colors = pixel_attributes[:, :, :, 6:9]
+  if specular_colors is not None:
+    specular_colors = pixel_attributes[:, :, :, 9:12]
+    # Retrieve the interpolated shininess coefficients if necessary, or just
+    # reshape our input for broadcasting:
+    if len(shininess_coefficients.shape) == 2:
+      shininess_coefficients = pixel_attributes[:, :, :, 12]
+    else:
+      shininess_coefficients = tf.reshape(shininess_coefficients, [-1, 1, 1])
+
+  pixel_mask = tf.cast(tf.reduce_any(diffuse_colors >= 0, axis=3), tf.float32)
+
+  renders = phong_shader(
+      normals=pixel_normals,
+      alphas=pixel_mask,
+      pixel_positions=pixel_positions,
+      light_positions=light_positions,
+      light_intensities=light_intensities,
+      diffuse_colors=diffuse_colors,
+      camera_position=camera_position if specular_colors is not None else None,
+      specular_colors=specular_colors,
+      shininess_coefficients=shininess_coefficients,
+      ambient_color=ambient_color)
+  return renders
