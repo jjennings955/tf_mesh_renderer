@@ -17,7 +17,6 @@ class Render(keras.layers.Layer):
         colors = x[3]
         eye, center, world_up = x[4], x[5], x[6]
         light_positions, light_intensities = x[7], x[8]
-        print(K.tile(light_intensities[tf.newaxis, :, :], [vertices.shape[0], 1, 1]))
         return mesh_renderer.mesh_renderer(vertices,
                                            faces,
                                            normals,

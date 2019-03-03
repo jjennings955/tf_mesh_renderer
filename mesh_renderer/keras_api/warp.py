@@ -18,21 +18,10 @@ class Warp(keras.layers.Layer):
         super(Warp, self).__init__(**kwargs)
 
     def build(self, input_shape):
-        # vertices, warp_points
-        # [batch, num_vertices, 3], [batch, self.num_warps, 1]
-        # self.keypoints = self.add_weight(name='keypoints',
-        #                                  shape=(self.num_warps, 3),
-        #                                  initializer='uniform',
-        #                                  trainable=True)
-        # self.warp_vectors = self.add_weight(name='warp_vector',
-        #                                     shape=(self.num_warps, 3),
-        #                                     initializer='uniform',
-        #                                     trainable=True)
         super(Warp, self).build(input_shape)
 
     def call(self, x):
         vertices, warp_params = x[0], x[1]
-        print(vertices, warp_params)
         vertices_repeated = tf.tile(vertices[tf.newaxis, :, :], [tf.shape(x[1])[0], 1, 1])
         warped_vertices = tf.foldl(warp_rbf,
                                    elems=[self.keypoints, self.warp_vectors,
