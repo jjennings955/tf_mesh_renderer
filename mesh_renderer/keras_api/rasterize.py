@@ -29,7 +29,7 @@ class Rasterize(keras.layers.Layer):
                                            self.resolution[0],
                                            self.resolution[1])
 
-        return pixel_positions, pixel_normals, vertex_ids, barycentric_coordinates
+        return [pixel_positions, pixel_normals, vertex_ids, barycentric_coordinates]
 
 
     def get_output_shape_for(self, input_shape):
