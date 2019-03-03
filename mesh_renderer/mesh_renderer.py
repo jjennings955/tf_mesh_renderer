@@ -401,7 +401,7 @@ def mesh_renderer(vertices,
       ambient_color=ambient_color)
   return renders
 
-def mesh_renderer2(vertices,
+def mesh_renderer_2(vertices,
                   triangles,
                   normals,
                   diffuse_colors,
@@ -582,27 +582,18 @@ def mesh_renderer2(vertices,
   # supply them to the shader:
   pixel_normals = tf.nn.l2_normalize(pixel_attributes[:, :, :, 0:3], dim=3)
   pixel_positions = pixel_attributes[:, :, :, 3:6]
-  diffuse_colors = pixel_attributes[:, :, :, 6:9]
-  if specular_colors is not None:
-    specular_colors = pixel_attributes[:, :, :, 9:12]
-    # Retrieve the interpolated shininess coefficients if necessary, or just
-    # reshape our input for broadcasting:
-    if len(shininess_coefficients.shape) == 2:
-      shininess_coefficients = pixel_attributes[:, :, :, 12]
-    else:
-      shininess_coefficients = tf.reshape(shininess_coefficients, [-1, 1, 1])
+  return pixel_positions, pixel_normals, vertex_ids, barycentric_coordinates
+#  pixel_mask = tf.cast(tf.reduce_any(diffuse_colors >= 0, axis=3), tf.float32)
 
-  pixel_mask = tf.cast(tf.reduce_any(diffuse_colors >= 0, axis=3), tf.float32)
-
-  renders = phong_shader(
-      normals=pixel_normals,
-      alphas=pixel_mask,
-      pixel_positions=pixel_positions,
-      light_positions=light_positions,
-      light_intensities=light_intensities,
-      diffuse_colors=diffuse_colors,
-      camera_position=camera_position if specular_colors is not None else None,
-      specular_colors=specular_colors,
-      shininess_coefficients=shininess_coefficients,
-      ambient_color=ambient_color)
-  return renders
+  # renders = phong_shader(
+  #     normals=pixel_normals,
+  #     alphas=pixel_mask,
+  #     pixel_positions=pixel_positions,
+  #     light_positions=light_positions,
+  #     light_intensities=light_intensities,
+  #     diffuse_colors=diffuse_colors,
+  #     camera_position=camera_position if specular_colors is not None else None,
+  #     specular_colors=specular_colors,
+  #     shininess_coefficients=shininess_coefficients,
+  #     ambient_color=ambient_color)
+  # return renders

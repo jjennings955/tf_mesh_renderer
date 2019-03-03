@@ -17,7 +17,7 @@ class Render(keras.layers.Layer):
         colors = x[3]
         eye, center, world_up = x[4], x[5], x[6]
         light_positions, light_intensities = x[7], x[8]
-        return mesh_renderer.mesh_renderer2(vertices,
+        return mesh_renderer.mesh_renderer(vertices,
                                            faces,
                                            normals,
                                            colors,

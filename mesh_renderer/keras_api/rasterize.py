@@ -6,10 +6,10 @@ import mesh_renderer
 class Rasterize(keras.layers.Layer):
     def __init__(self, res, **kwargs):
         self.resolution = res
-        super(Render, self).__init__(**kwargs)
+        super(Rasterize, self).__init__(**kwargs)
 
     def build(self, input_shape):
-        super(Render, self).build(input_shape)
+        super(Rasterize, self).build(input_shape)
 
     def call(self, x):
         vertices, faces = x[0], x[1]
@@ -17,7 +17,7 @@ class Rasterize(keras.layers.Layer):
         colors = x[3]
         eye, center, world_up = x[4], x[5], x[6]
         light_positions, light_intensities = x[7], x[8]
-        return mesh_renderer.mesh_renderer(vertices,
+        pixel_positions, pixel_normals, vertex_ids, barycentric_coordinates = mesh_renderer.mesh_renderer_2(vertices,
                                            faces,
                                            normals,
                                            colors,
@@ -29,6 +29,8 @@ class Rasterize(keras.layers.Layer):
                                            self.resolution[0],
                                            self.resolution[1])
 
+        return pixel_positions, pixel_normals, vertex_ids, barycentric_coordinates
 
-    def get_output_shape_for(self, input_shape):
-        return (input.shape[0], self.resolution[0], self.resolution[1])
+
+    # def get_output_shape_for(self, input_shape):
+    #     return (input.shape[0], self.resolution[0], self.resolution[1])
