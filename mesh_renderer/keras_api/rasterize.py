@@ -33,4 +33,4 @@ class Rasterize(keras.layers.Layer):
 
 
     def get_output_shape_for(self, input_shape):
-         return [10, self.resolution[], self.resolution[1]]
+         return [10, self.resolution[0], self.resolution[1]]
