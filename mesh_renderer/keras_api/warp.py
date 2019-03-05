@@ -22,7 +22,7 @@ class Warp(keras.layers.Layer):
 
     def call(self, x):
         vertices, warp_params = x[0], x[1]
-        vertices_repeated = tf.tile(vertices[tf.newaxis, :, :], [tf.shape(x[0])[0], 1, 1])
+        vertices_repeated = tf.tile(vertices[tf.newaxis, :, :], [tf.shape(x[1])[0], 1, 1])
         warped_vertices = tf.foldl(warp_rbf,
                                    elems=[self.keypoints, self.warp_vectors,
                                           K.permute_dimensions(warp_params, (1, 0, 2))],
