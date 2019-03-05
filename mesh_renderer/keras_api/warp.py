@@ -7,7 +7,7 @@ def warp_rbf(a, x):
     keypoint, warp_vector, params = x[0], x[1], x[2]
     d = tf.norm((v - keypoint), axis=2, keepdims=True)
     k_d = tf.exp(-1.5 * d ** 2)
-    nudge = tf.reshape(params, [-1, 1, 1]) * k_d * x[1]
+    nudge = tf.reshape(params, [-1, 1, 1]) * k_d * warp_vector
     return v + nudge
 
 
